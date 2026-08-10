@@ -35,12 +35,6 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleFillDemo = () => {
-    setEmail('admin@sharmachaat.com');
-    setPassword('admin123');
-    setError(null);
-  };
-
   return (
     <div className="min-h-screen bg-stone-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full mx-auto space-y-8">
@@ -82,14 +76,14 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-stone-300">
-                Admin Email
+                Admin Username / Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="email"
+                  type="text"
                   required
-                  placeholder="admin@sharmachaat.com"
+                  placeholder="shubhamkapilchaat.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-900 border border-stone-700 text-white placeholder-stone-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-hidden text-sm"
@@ -117,7 +111,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-sm shadow-md shadow-orange-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-sm shadow-md shadow-orange-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -127,25 +121,11 @@ export default function AdminLoginPage() {
               ) : (
                 <>
                   <KeyRound className="w-4 h-4" />
-                  <span>Sign In as Admin</span>
+                  <span>Sign In to Dashboard</span>
                 </>
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials Helper */}
-          <div className="pt-4 border-t border-stone-700 text-center space-y-2">
-            <p className="text-[11px] text-stone-400">
-              Testing locally? Click below to fill demo admin credentials:
-            </p>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-stone-700 text-amber-400 border border-amber-400/30 text-xs font-semibold transition-colors"
-            >
-              Use Quick Demo Login (admin@sharmachaat.com / admin123)
-            </button>
-          </div>
 
         </div>
 

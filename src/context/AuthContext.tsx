@@ -97,11 +97,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Local / Offline demo mode login fallback
-      if (email.toLowerCase() === 'admin@sharmachaat.com' && pass === 'admin123') {
+      // Offline / Local admin mode credentials
+      const normalizedEmail = email.toLowerCase().trim();
+      const validEmails = ['shubhamkapilchaat.com', 'admin@shubhamkapilchaat.com', 'shubhamkapilchaat'];
+
+      if (validEmails.includes(normalizedEmail) && pass === 'Shubham@123') {
         const adminUser: User = {
-          id: 'admin-local-1',
-          email: 'admin@sharmachaat.com',
+          id: 'admin-shubham-1',
+          email: 'shubhamkapilchaat.com',
           role: 'admin'
         };
         setUser(adminUser);
@@ -111,7 +114,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       setIsLoading(false);
-      return { success: false, error: 'Invalid admin credentials. Use admin@sharmachaat.com / admin123 or configure Supabase Auth.' };
+      return { success: false, error: 'Invalid admin username or password.' };
     } catch (err: unknown) {
       setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
