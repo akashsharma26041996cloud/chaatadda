@@ -130,3 +130,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 - **Celebration**: Canvas Confetti
 - **Database & Auth**: Supabase PostgreSQL + Row Level Security (RLS)
 - **Hosting**: Vercel Free Tier
+# chaatadda
