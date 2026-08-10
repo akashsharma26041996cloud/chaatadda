@@ -131,3 +131,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 - **Database & Auth**: Supabase PostgreSQL + Row Level Security (RLS)
 - **Hosting**: Vercel Free Tier
 # chaatadda
+# chaatadda
