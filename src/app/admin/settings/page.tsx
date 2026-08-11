@@ -116,49 +116,54 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Contact Numbers */}
-        <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-4">
-          <h2 className="font-bold text-stone-900 text-base flex items-center gap-2">
-            <Phone className="w-4 h-4 text-emerald-600" />
-            <span>Contact & WhatsApp Details</span>
-          </h2>
+        {/* Automatic WhatsApp Order Alerts (CallMeBot) */}
+        <div className="bg-white rounded-3xl p-6 border-2 border-emerald-500/30 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-stone-900 text-base flex items-center gap-2">
+              <Phone className="w-4 h-4 text-emerald-600" />
+              <span>Automatic WhatsApp Order Alerts (CallMeBot - 100% Free)</span>
+            </h2>
+            <span className="text-[10px] uppercase font-black px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Instant Alert
+            </span>
+          </div>
+
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-xs text-stone-700 space-y-2">
+            <div className="font-bold text-emerald-900 flex items-center gap-1.5">
+              <span>⚡ How to get your free CallMeBot WhatsApp API Key in 10 seconds:</span>
+            </div>
+            <ol className="list-decimal list-inside space-y-1 text-stone-600 text-[11px] leading-relaxed">
+              <li>Add <strong>+34 644 14 44 94</strong> (or <strong>+34 644 59 71 83</strong>) to your phone contacts as <em>CallMeBot</em>.</li>
+              <li>Send this exact WhatsApp message: <code className="bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-900 font-mono">I allow callmebot to send me messages</code></li>
+              <li>The bot will reply immediately with your <strong>API Key</strong> (e.g. <code className="bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-900 font-mono">123456</code>).</li>
+              <li>Paste your phone number and the API Key below!</li>
+            </ol>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-stone-700">Calling Phone Number</label>
+              <label className="block text-xs font-bold text-stone-700">
+                Your WhatsApp Number (e.g. 919876543210)
+              </label>
               <input
                 type="text"
-                value={settings.business_phone}
-                onChange={(e) => setSettings({ ...settings, business_phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-orange-500 outline-hidden"
+                value={settings.callmebot_phone || ''}
+                onChange={(e) => setSettings({ ...settings, callmebot_phone: e.target.value })}
+                placeholder="919876543210"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-emerald-500 outline-hidden font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-stone-700">
-                WhatsApp Chat Number (with country code, e.g. 919876543210)
+                CallMeBot API Key
               </label>
               <input
                 type="text"
-                value={settings.whatsapp_number}
-                onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-orange-500 outline-hidden"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-stone-700">
-              Admin Notification Email
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                value={settings.admin_notification_email || ''}
-                onChange={(e) => setSettings({ ...settings, admin_notification_email: e.target.value })}
-                placeholder="admin@sharmachaat.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-orange-500 outline-hidden"
+                value={settings.callmebot_api_key || ''}
+                onChange={(e) => setSettings({ ...settings, callmebot_api_key: e.target.value })}
+                placeholder="e.g. 847291"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-emerald-500 outline-hidden font-mono"
               />
             </div>
           </div>

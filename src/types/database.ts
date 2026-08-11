@@ -71,6 +71,8 @@ export interface BusinessSettings {
   delivery_message: string;
   is_open: boolean;
   admin_notification_email?: string;
+  callmebot_phone?: string;
+  callmebot_api_key?: string;
 }
 
 export interface CartItem {

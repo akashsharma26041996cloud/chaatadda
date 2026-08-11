@@ -17,6 +17,27 @@ export async function sendNewOrderNotification(
       .join('\n');
 
     const orderNumberStr = order.order_number ? `#${order.order_number}` : `#${order.id.slice(0, 6)}`;
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Structured WhatsApp message format for owner
+    const waText = [
+      `🥟 *NEW CHAAT ORDER ${orderNumberStr}*`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `👤 *Customer:* ${order.customer_name}`,
+      `📞 *Phone:* ${order.customer_phone}`,
+      `📍 *Address:* ${order.delivery_address}`,
+      order.delivery_instructions ? `📝 *Note:* ${order.delivery_instructions}` : '',
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `📦 *ITEMS:*`,
+      summaryText,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `💵 *TOTAL:* ₹${order.total} (${order.payment_method})`,
+      `⏱️ *Time:* ${timeStr}`,
+      `━━━━━━━━━━━━━━━━━━━━`
+    ]
+      .filter(Boolean)
+      .join('\n');
+
     const notificationPayload = {
       event: 'NEW_ORDER_RECEIVED',
       orderId: order.id,
@@ -33,6 +54,27 @@ export async function sendNewOrderNotification(
     };
 
     console.log('🔔 [FREE NOTIFICATION SERVICE] New Order Alert:', notificationPayload);
+
+    // CallMeBot WhatsApp Automated Notification
+    const botPhone = settings?.callmebot_phone || process.env.CALLMEBOT_PHONE || process.env.NEXT_PUBLIC_CALLMEBOT_PHONE;
+    const botApiKey = settings?.callmebot_api_key || process.env.CALLMEBOT_API_KEY || process.env.NEXT_PUBLIC_CALLMEBOT_API_KEY;
+
+    if (botPhone && botApiKey) {
+      const cleanPhone = botPhone.replace(/[^0-9]/g, '');
+      const formattedPhone = cleanPhone.startsWith('91') || cleanPhone.length > 10 ? cleanPhone : `91${cleanPhone}`;
+      const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=+${formattedPhone}&text=${encodeURIComponent(
+        waText
+      )}&apikey=${encodeURIComponent(botApiKey.trim())}`;
+
+      fetch(callmebotUrl)
+        .then(async (res) => {
+          const body = await res.text();
+          console.log('📲 CallMeBot WhatsApp Notification Status:', res.status, body);
+        })
+        .catch((err) => {
+          console.error('📲 CallMeBot WhatsApp Notification Error:', err);
+        });
+    }
 
     // Optional: Send to external free webhook if set in environment
     const webhookUrl = process.env.NEXT_PUBLIC_NEW_ORDER_WEBHOOK_URL;
