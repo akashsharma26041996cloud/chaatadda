@@ -28,9 +28,43 @@ export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [previousOrderCount, setPreviousOrderCount] = useState<number | null>(null);
+
+  const playOrderChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const audioCtx = new AudioCtx();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.8);
+    } catch {
+      // Audio autoplay restriction fallback
+    }
+  };
+
+  const showBrowserNotification = (order: Order) => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification(`🥟 New Order Received! (₹${order.total})`, {
+        body: `${order.customer_name} placed an order for ₹${order.total}.`,
+        icon: '/favicon.ico'
+      });
+    }
+  };
 
   const loadOrders = async () => {
-    setIsLoading(true);
     try {
       // 1. Load local / Supabase orders
       let current = await getOrders();
@@ -58,6 +92,14 @@ export default function AdminOrdersPage() {
         console.warn('API orders sync fallback:', err);
       }
 
+      // Check if new order arrived to trigger alert
+      if (previousOrderCount !== null && current.length > previousOrderCount) {
+        playOrderChime();
+        if (current[0]) {
+          showBrowserNotification(current[0]);
+        }
+      }
+      setPreviousOrderCount(current.length);
       setOrders(current);
     } catch (e) {
       console.error('Failed to load orders:', e);
@@ -68,9 +110,13 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     loadOrders();
-    const interval = setInterval(loadOrders, 10000);
+    // Request notification permission if available
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+    const interval = setInterval(loadOrders, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [previousOrderCount]);
 
   const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
     setUpdatingId(orderId);

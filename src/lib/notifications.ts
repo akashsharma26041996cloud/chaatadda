@@ -118,6 +118,31 @@ export async function sendNewOrderNotification(
         });
     }
 
+    // Instant Mobile Push Notifications via ntfy.sh (100% Free, No Account Needed, Works on Android & iOS)
+    const ntfyTopic = settings?.ntfy_topic || process.env.NTFY_TOPIC || process.env.NEXT_PUBLIC_NTFY_TOPIC;
+    if (ntfyTopic) {
+      const cleanTopic = ntfyTopic.trim().replace(/^https?:\/\/ntfy\.sh\//, '');
+      const pushTitle = `🥟 New Order #${order.order_number || order.id.slice(0, 6)} - ₹${order.total}`;
+      const pushBody = `${order.customer_name} (${order.customer_phone})\n📍 ${order.delivery_address}\n📦 ${items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}`;
+
+      fetch(`https://ntfy.sh/${cleanTopic}`, {
+        method: 'POST',
+        headers: {
+          'Title': pushTitle,
+          'Priority': 'urgent',
+          'Tags': 'dumpling,moneybag,bell',
+          'Click': 'https://chaatadda.vercel.app/admin/orders'
+        },
+        body: pushBody
+      })
+        .then(async (res) => {
+          console.log('🔔 [ntfy Push Notification] Status:', res.status);
+        })
+        .catch((err) => {
+          console.error('🔔 [ntfy Push Notification] Error:', err);
+        });
+    }
+
     // Optional: Send to external free webhook if set in environment
     const webhookUrl = process.env.NEXT_PUBLIC_NEW_ORDER_WEBHOOK_URL;
     if (webhookUrl) {
@@ -132,6 +157,36 @@ export async function sendNewOrderNotification(
   } catch (error) {
     console.error('Failed to send notification:', error);
     return { success: false, message: 'Notification error' };
+  }
+}
+
+/**
+ * Sends a test push notification via ntfy.sh
+ */
+export async function sendNtfyTestNotification(
+  topic: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const cleanTopic = topic.trim().replace(/^https?:\/\/ntfy\.sh\//, '');
+    const res = await fetch(`https://ntfy.sh/${cleanTopic}`, {
+      method: 'POST',
+      headers: {
+        'Title': '🚀 Chaat Adda - Push Notification Test',
+        'Priority': 'high',
+        'Tags': 'tada,bell,white_check_mark',
+        'Click': 'https://chaatadda.vercel.app/admin/orders'
+      },
+      body: '✅ Push notification successfully delivered to your phone! You will now receive instant rings for every incoming order.'
+    });
+
+    if (res.ok) {
+      return { success: true, message: 'Push notification sent to your phone via ntfy!' };
+    } else {
+      return { success: false, message: 'Failed to dispatch push notification. Check topic name.' };
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Network error';
+    return { success: false, message: `Failed to connect to push service: ${msg}` };
   }
 }
 

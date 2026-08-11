@@ -75,6 +75,7 @@ export interface BusinessSettings {
   callmebot_api_key?: string;
   telegram_bot_token?: string;
   telegram_chat_id?: string;
+  ntfy_topic?: string;
 }
 
 export interface CartItem {

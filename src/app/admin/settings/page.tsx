@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getSettings, updateSettings } from '@/lib/db';
-import { sendTelegramTestNotification } from '@/lib/notifications';
+import { sendTelegramTestNotification, sendNtfyTestNotification } from '@/lib/notifications';
 import { BusinessSettings } from '@/types/database';
 import {
   SlidersHorizontal,
@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Loader2,
   Mail,
-  Send
+  Send,
+  Bell
 } from 'lucide-react';
 
 export default function AdminSettingsPage() {
@@ -24,6 +25,8 @@ export default function AdminSettingsPage() {
   const [showSavedToast, setShowSavedToast] = useState(false);
   const [isTestingTelegram, setIsTestingTelegram] = useState(false);
   const [telegramTestMsg, setTelegramTestMsg] = useState<string | null>(null);
+  const [isTestingNtfy, setIsTestingNtfy] = useState(false);
+  const [ntfyTestMsg, setNtfyTestMsg] = useState<string | null>(null);
 
   useEffect(() => {
     getSettings().then((res) => {
@@ -31,6 +34,20 @@ export default function AdminSettingsPage() {
       setIsLoading(false);
     });
   }, []);
+
+  const handleTestNtfy = async () => {
+    if (!settings?.ntfy_topic) return;
+    setIsTestingNtfy(true);
+    setNtfyTestMsg(null);
+    try {
+      const res = await sendNtfyTestNotification(settings.ntfy_topic);
+      setNtfyTestMsg(res.message);
+    } catch (e: unknown) {
+      setNtfyTestMsg('Failed to dispatch push test');
+    } finally {
+      setIsTestingNtfy(false);
+    }
+  };
 
   const handleTestTelegram = async () => {
     if (!settings?.telegram_bot_token || !settings?.telegram_chat_id) return;
@@ -208,6 +225,68 @@ export default function AdminSettingsPage() {
             {telegramTestMsg && (
               <span className={`text-xs font-bold ${telegramTestMsg.includes('success') || telegramTestMsg.includes('delivered') ? 'text-emerald-600' : 'text-rose-600'}`}>
                 {telegramTestMsg}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Instant Mobile Push Notifications (ntfy.sh - 100% Free) */}
+        <div className="bg-white rounded-3xl p-6 border-2 border-indigo-500/30 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-stone-900 text-base flex items-center gap-2">
+              <Bell className="w-4 h-4 text-indigo-600" />
+              <span>Instant Mobile Push Notifications (ntfy.sh - 100% Free & No Account Needed)</span>
+            </h2>
+            <span className="text-[10px] uppercase font-black px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Rings Your Phone 📱
+            </span>
+          </div>
+
+          <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4 text-xs text-stone-700 space-y-2">
+            <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+              <span>📲 How to get loud sound/ring alerts on your Android or iPhone in 2 steps:</span>
+            </div>
+            <ol className="list-decimal list-inside space-y-1.5 text-stone-700 text-[11px] leading-relaxed">
+              <li>Install the free <strong>ntfy</strong> app from <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline font-bold">Google Play Store</a> (Android) or <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline font-bold">Apple App Store</a> (iOS).</li>
+              <li>Open the app, tap <strong>"+" (Subscribe to topic)</strong>, enter a unique secret topic name (e.g. <code className="bg-indigo-100 px-1.5 py-0.5 rounded text-indigo-900 font-mono">chaatadda_orders_{Date.now().toString().slice(-4)}</code>), and tap <strong>Subscribe</strong>.</li>
+              <li>Type that exact same topic name below, and click <em>"Send Test Push Alert"</em>!</li>
+            </ol>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-stone-700">
+              Your Secret ntfy Topic Name
+            </label>
+            <input
+              type="text"
+              value={settings.ntfy_topic || ''}
+              onChange={(e) => setSettings({ ...settings, ntfy_topic: e.target.value })}
+              placeholder="e.g. chaatadda_owner_secret_orders_99"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 text-sm focus:bg-white focus:border-indigo-500 outline-hidden font-mono"
+            />
+            <p className="text-[11px] text-stone-400">
+              Tip: Pick a secret topic name that only you know so nobody else subscribes to it.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+            <button
+              type="button"
+              disabled={isTestingNtfy || !settings.ntfy_topic}
+              onClick={handleTestNtfy}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs active:scale-95"
+            >
+              {isTestingNtfy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Bell className="w-3.5 h-3.5" />
+              )}
+              <span>Send Test Push Alert</span>
+            </button>
+
+            {ntfyTestMsg && (
+              <span className={`text-xs font-bold ${ntfyTestMsg.includes('sent') || ntfyTestMsg.includes('success') ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {ntfyTestMsg}
               </span>
             )}
           </div>
