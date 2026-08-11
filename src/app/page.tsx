@@ -307,7 +307,7 @@ export default function HomePage() {
         <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
           <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">Quality First</span>
           <h2 className="text-2xl sm:text-3xl font-black text-stone-900">
-            Why Foodies Love Sharma Ji
+            Why Foodies Love {settings?.business_name || 'Chaat Adda'}
           </h2>
           <p className="text-xs sm:text-sm text-stone-500">
             We take pride in preparing street food that is 100% hygienic, safe and uncompromisingly tasty.

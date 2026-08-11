@@ -50,7 +50,7 @@ export default function AdminNavbar() {
                 <Store className="w-4 h-4" />
               </div>
               <span className="font-black text-base text-white tracking-wide">
-                Sharma Ji Admin
+                Chaat Adda Admin
               </span>
             </Link>
             <span className="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md">

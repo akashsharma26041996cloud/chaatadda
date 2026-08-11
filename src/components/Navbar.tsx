@@ -31,7 +31,7 @@ export default function Navbar() {
     { name: 'Delivery Info', href: '/#delivery-info' },
   ];
 
-  const businessName = settings?.business_name || 'Sharma Ji Chaat';
+  const businessName = settings?.business_name || 'Chaat Adda';
   const phoneFormatted = (settings?.business_phone || '+91 98765 43210').trim();
   const phoneClean = phoneFormatted.replace(/[^0-9+]/g, '');
   const freeDeliveryThreshold = settings?.free_delivery_threshold || 299;

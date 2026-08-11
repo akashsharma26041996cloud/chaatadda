@@ -8,24 +8,24 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import MobileCartBar from "@/components/MobileCartBar";
 
 export const metadata: Metadata = {
-  title: "Sharma Ji Chaat & Golgappe Bhandar | Order Fresh Street Food Online",
-  description: "Order authentic crispy Golgappe (Pani Puri), Aloo Tikki, Papdi Chaat, Dahi Bhalla & Combos online. Made with 100% RO filtered water and pure ingredients. Fast local delivery & Cash on Delivery available.",
+  title: "Chaat Adda | Order Fresh Chaat & Golgappe Online",
+  description: "Order authentic crispy Golgappe (Pani Puri), Aloo Tikki, Papdi Chaat, Dahi Bhalla & Combos online from Chaat Adda. Made with 100% RO filtered water and pure ingredients. Fast local delivery & Cash on Delivery available.",
   keywords: [
+    "Chaat Adda",
     "Golgappe online order",
     "Pani Puri delivery",
     "Chaat shop nearby",
     "Aloo Tikki Chaat",
     "Papdi Chaat",
     "Dahi Bhalla",
-    "Street food delivery",
-    "Sharma Ji Chaat"
+    "Street food delivery"
   ],
   openGraph: {
-    title: "Sharma Ji Chaat & Golgappe Bhandar",
+    title: "Chaat Adda | Fresh Street Food Delivery",
     description: "Crispy Golgappe & Authentic Indian Street Chaats delivered fresh to your door with RO water hygiene promise.",
     type: "website",
     locale: "en_IN",
-    siteName: "Sharma Ji Chaat & Golgappe"
+    siteName: "Chaat Adda"
   }
 };
 

@@ -87,7 +87,8 @@ export default function OrderSuccessPage() {
   }
 
   const orderNumStr = order.order_number ? `#${order.order_number}` : `#${order.id.slice(0, 8)}`;
-  const whatsappMsg = `Hi Sharma Ji Chaat, I just placed order ${orderNumStr} for ₹${order.total}. Customer Name: ${order.customer_name}. Please confirm the delivery time.`;
+  const storeName = settings?.business_name || 'Chaat Adda';
+  const whatsappMsg = `Hi ${storeName}, I just placed order ${orderNumStr} for ₹${order.total}. Customer Name: ${order.customer_name}. Please confirm the delivery time.`;
   const whatsappUrl = generateCustomerWhatsAppLink(
     settings?.whatsapp_number || '919876543210',
     whatsappMsg

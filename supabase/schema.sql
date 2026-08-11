@@ -211,17 +211,17 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.settings (key, value) VALUES
 ('general', '{
-  "business_name": "Sharma Ji Chaat & Golgappe Bhandar",
+  "business_name": "Chaat Adda",
   "tagline": "Authentic Crispy Golgappe & Street Chaat with RO Water & Pure Desi Ghee",
   "business_phone": "+91 98765 43210",
   "whatsapp_number": "919876543210",
   "delivery_fee": 25,
   "min_order_amount": 99,
   "free_delivery_threshold": 299,
-  "delivery_areas": "Within 5 km radius (Model Town, Civil Lines, Urban Estate, Main Market)",
+  "delivery_areas": "Within 2-5 km radius (Model Town, Civil Lines, Urban Estate, Main Market)",
   "business_hours": "12:30 PM - 10:30 PM (Open 7 Days)",
   "delivery_message": "Freshly packed in spill-proof tamper-evident containers with separate crispy puris and spicy mint water.",
   "is_open": true,
-  "admin_notification_email": "admin@sharmachaat.com"
+  "admin_notification_email": "admin@chaatadda.com"
 }'::jsonb)
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
