@@ -580,10 +580,10 @@ export async function updateSettings(newSettings: Partial<BusinessSettings>): Pr
 
   if (isSupabaseConfigured() && supabase) {
     try {
-      await supabase
+     const { error } =  await supabase
         .from('settings')
-        .upsert({ key: 'general', value: updated, updated_at: new Date().toISOString() });
-    } catch (err) {
+        .upsert({ key: 'general', value: updated, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+       ;if (error) throw error;    } catch (err) {
       console.warn('Supabase updateSettings error:', err);
     }
   }
