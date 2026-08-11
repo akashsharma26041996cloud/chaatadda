@@ -1,17 +1,34 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { UtensilsCrossed, Phone, MapPin, Clock, Heart, ShieldCheck, Sparkles, MessageCircle } from 'lucide-react';
+import { UtensilsCrossed, Phone, MapPin, Clock, Heart, ShieldCheck, MessageCircle } from 'lucide-react';
+import { getSettings } from '@/lib/db';
+import { BusinessSettings } from '@/types/database';
+import { generateCustomerWhatsAppLink } from '@/lib/notifications';
 
 export default function Footer() {
   const pathname = usePathname();
+  const [settings, setSettings] = useState<BusinessSettings | null>(null);
+
+  useEffect(() => {
+    getSettings().then((s) => setSettings(s)).catch(() => {});
+  }, [pathname]);
 
   // Hide footer on admin pages
   if (pathname?.startsWith('/admin')) {
     return null;
   }
+
+  const businessName = settings?.business_name || 'Sharma Ji Chaat';
+  const tagline = settings?.tagline || 'Golgappe & Authentic Street Food';
+  const phoneFormatted = (settings?.business_phone || '+91 98765 43210').trim();
+  const phoneClean = phoneFormatted.replace(/[^0-9+]/g, '');
+  const whatsappNumber = settings?.whatsapp_number || '919876543210';
+  const whatsappUrl = generateCustomerWhatsAppLink(whatsappNumber, 'Hi! I want to order Chaat & Golgappe.');
+  const deliveryAreas = settings?.delivery_areas || 'Model Town, Civil Lines, Urban Estate & nearby sectors';
+  const businessHours = settings?.business_hours || '12:30 PM - 10:30 PM (Open 7 Days a Week)';
 
   return (
     <footer className="bg-stone-900 text-stone-300 pt-12 pb-24 md:pb-12 border-t border-stone-800">
@@ -24,10 +41,10 @@ export default function Footer() {
               <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white">
                 <UtensilsCrossed className="w-5 h-5" />
               </div>
-              <span className="text-lg font-bold text-white">Sharma Ji Chaat</span>
+              <span className="text-lg font-bold text-white">{businessName}</span>
             </div>
             <p className="text-xs text-stone-400 leading-relaxed">
-              Serving the crispiest Golgappe, mouthwatering Chaats and authentic regional Indian street food delicacies. 100% RO filtered water, no compromise on hygiene.
+              {tagline}. Serving the crispiest Golgappe, mouthwatering Chaats and authentic regional Indian street food delicacies. 100% RO filtered water, no compromise on hygiene.
             </p>
             <div className="flex items-center gap-2 text-xs text-amber-400">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -66,11 +83,11 @@ export default function Footer() {
             <div className="space-y-3 text-xs">
               <div className="flex items-start gap-2">
                 <Clock className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
-                <span>12:30 PM - 10:30 PM<br/><span className="text-stone-500">Open 7 Days a Week</span></span>
+                <span>{businessHours}</span>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
-                <span>Delivering in Model Town, Civil Lines, Urban Estate & nearby (5km radius)</span>
+                <span>Delivering in: {deliveryAreas}</span>
               </div>
             </div>
           </div>
@@ -80,14 +97,14 @@ export default function Footer() {
             <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Direct Contact</h4>
             <div className="space-y-3 text-xs">
               <a
-                href="tel:+919876543210"
+                href={`tel:${phoneClean}`}
                 className="flex items-center gap-2.5 p-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 transition-colors text-white"
               >
                 <Phone className="w-4 h-4 text-emerald-400" />
-                <span>+91 98765 43210</span>
+                <span>{phoneFormatted}</span>
               </a>
               <a
-                href="https://wa.me/919876543210?text=Hi!%20I%20want%20to%20order%20Chaat%20%26%20Golgappe"
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2.5 p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-800/80 hover:bg-emerald-900 transition-colors text-emerald-300"
@@ -101,7 +118,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <p>© {new Date().getFullYear()} Sharma Ji Chaat & Golgappe Bhandar. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {businessName}. All rights reserved.</p>
           <div className="flex items-center gap-1">
             <span>Crafted with</span>
             <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />

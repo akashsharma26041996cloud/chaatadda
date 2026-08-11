@@ -366,11 +366,12 @@ export default function HomePage() {
               <span>Local Home Delivery Available</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-              Delivering Within 5km Radius
+              Fresh Local Delivery
             </h3>
             <p className="text-xs sm:text-sm text-stone-600 max-w-xl">
-              Model Town, Civil Lines, Urban Estate, Main Bazaar, Railway Colony & surrounding sectors.
-              Delivery fee is only ₹25 (FREE for orders above ₹299).
+              {settings?.delivery_areas || 'Delivering to nearby sectors and surrounding areas.'}{' '}
+              Standard delivery fee is only ₹{settings?.delivery_fee ?? 25}{' '}
+              {settings?.free_delivery_threshold ? `(FREE for orders above ₹${settings.free_delivery_threshold})` : ''}.
             </p>
           </div>
 
@@ -382,7 +383,7 @@ export default function HomePage() {
               Order Online
             </Link>
             <a
-              href="tel:+919876543210"
+              href={`tel:${(settings?.business_phone || '+919876543210').replace(/[^0-9+]/g, '')}`}
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-sm border border-stone-300 text-center shadow-xs"
             >
               <Phone className="w-4 h-4 text-emerald-600" />

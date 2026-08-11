@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Phone, Menu, X, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { getSettings } from '@/lib/db';
+import { BusinessSettings } from '@/types/database';
 
 export default function Navbar() {
   const pathname = usePathname();
   const { totalItemsCount, subtotal } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [settings, setSettings] = useState<BusinessSettings | null>(null);
+
+  useEffect(() => {
+    getSettings().then((s) => setSettings(s)).catch(() => {});
+  }, [pathname]);
 
   // Hide customer navbar on admin pages
   if (pathname?.startsWith('/admin')) {
@@ -24,12 +31,17 @@ export default function Navbar() {
     { name: 'Delivery Info', href: '/#delivery-info' },
   ];
 
+  const businessName = settings?.business_name || 'Sharma Ji Chaat';
+  const phoneFormatted = (settings?.business_phone || '+91 98765 43210').trim();
+  const phoneClean = phoneFormatted.replace(/[^0-9+]/g, '');
+  const freeDeliveryThreshold = settings?.free_delivery_threshold || 299;
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-xs">
       {/* Top Announcement Bar */}
       <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 text-white text-xs sm:text-sm py-1.5 px-4 text-center font-medium flex items-center justify-center gap-2">
         <Sparkles className="w-4 h-4 animate-pulse" />
-        <span>⚡ 100% RO Filtered Water Pani Puri & Pure Desi Ghee Chaats • Free Delivery Above ₹299!</span>
+        <span>⚡ 100% RO Filtered Water Pani Puri & Pure Desi Ghee Chaats • Free Delivery Above ₹{freeDeliveryThreshold}!</span>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -42,10 +54,10 @@ export default function Navbar() {
             </div>
             <div>
               <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent block leading-tight">
-                Sharma Ji Chaat
+                {businessName}
               </span>
               <span className="text-[10px] sm:text-xs text-stone-500 font-medium tracking-wide uppercase">
-                & Golgappe Bhandar
+                {settings?.tagline || '& Golgappe Bhandar'}
               </span>
             </div>
           </Link>
@@ -74,11 +86,11 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {/* Phone/WhatsApp quick call */}
             <a
-              href="tel:+919876543210"
+              href={`tel:${phoneClean}`}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
-              <span>+91 98765 43210</span>
+              <span>{phoneFormatted}</span>
             </a>
 
             {/* Cart Button */}
@@ -126,11 +138,11 @@ export default function Navbar() {
           ))}
           <div className="pt-2 border-t border-stone-100 flex flex-col gap-2">
             <a
-              href="tel:+919876543210"
+              href={`tel:${phoneClean}`}
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-sm border border-emerald-200"
             >
               <Phone className="w-4 h-4" />
-              Call To Order: +91 98765 43210
+              Call To Order: {phoneFormatted}
             </a>
             <Link
               href="/admin/login"

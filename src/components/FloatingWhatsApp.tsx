@@ -1,19 +1,29 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 import { generateCustomerWhatsAppLink } from '@/lib/notifications';
+import { getSettings } from '@/lib/db';
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
+  const [whatsappNumber, setWhatsappNumber] = useState('919876543210');
+
+  useEffect(() => {
+    getSettings().then((s) => {
+      if (s?.whatsapp_number) {
+        setWhatsappNumber(s.whatsapp_number);
+      }
+    }).catch(() => {});
+  }, [pathname]);
 
   // Hide on admin routes
   if (pathname?.startsWith('/admin')) {
     return null;
   }
 
-  const whatsappUrl = generateCustomerWhatsAppLink('919876543210');
+  const whatsappUrl = generateCustomerWhatsAppLink(whatsappNumber);
 
   return (
     <aside aria-label="WhatsApp Support" className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
