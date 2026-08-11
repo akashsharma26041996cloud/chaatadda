@@ -123,17 +123,21 @@ export async function sendNewOrderNotification(
     if (ntfyTopic) {
       const cleanTopic = ntfyTopic.trim().replace(/^https?:\/\/ntfy\.sh\//, '');
       const pushTitle = `🥟 New Order #${order.order_number || order.id.slice(0, 6)} - ₹${order.total}`;
-      const pushBody = `${order.customer_name} (${order.customer_phone})\n📍 ${order.delivery_address}\n📦 ${items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}`;
+      const pushBody = `${order.customer_name} (+91 ${order.customer_phone})\n📍 ${order.delivery_address}\n📦 ${items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}`;
 
-      fetch(`https://ntfy.sh/${cleanTopic}`, {
+      fetch('https://ntfy.sh', {
         method: 'POST',
         headers: {
-          'Title': pushTitle,
-          'Priority': 'urgent',
-          'Tags': 'dumpling,moneybag,bell',
-          'Click': 'https://chaatadda.vercel.app/admin/orders'
+          'Content-Type': 'application/json'
         },
-        body: pushBody
+        body: JSON.stringify({
+          topic: cleanTopic,
+          title: pushTitle,
+          message: pushBody,
+          priority: 5,
+          tags: ['dumpling', 'moneybag', 'bell'],
+          click: 'https://chaatadda.vercel.app/admin/orders'
+        })
       })
         .then(async (res) => {
           console.log('🔔 [ntfy Push Notification] Status:', res.status);
@@ -161,22 +165,26 @@ export async function sendNewOrderNotification(
 }
 
 /**
- * Sends a test push notification via ntfy.sh
+ * Sends a test push notification via ntfy.sh using standard JSON payload
  */
 export async function sendNtfyTestNotification(
   topic: string
 ): Promise<{ success: boolean; message: string }> {
   try {
     const cleanTopic = topic.trim().replace(/^https?:\/\/ntfy\.sh\//, '');
-    const res = await fetch(`https://ntfy.sh/${cleanTopic}`, {
+    const res = await fetch('https://ntfy.sh', {
       method: 'POST',
       headers: {
-        'Title': '🚀 Chaat Adda - Push Notification Test',
-        'Priority': 'high',
-        'Tags': 'tada,bell,white_check_mark',
-        'Click': 'https://chaatadda.vercel.app/admin/orders'
+        'Content-Type': 'application/json'
       },
-      body: '✅ Push notification successfully delivered to your phone! You will now receive instant rings for every incoming order.'
+      body: JSON.stringify({
+        topic: cleanTopic,
+        title: '🚀 Chaat Adda - Push Notification Test',
+        message: '✅ Push notification delivered! You will now receive instant rings for every incoming order.',
+        priority: 4,
+        tags: ['tada', 'bell', 'white_check_mark'],
+        click: 'https://chaatadda.vercel.app/admin/orders'
+      })
     });
 
     if (res.ok) {
