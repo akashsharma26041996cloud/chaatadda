@@ -1,5 +1,33 @@
 import { NextResponse } from 'next/server';
-import { createOrder, CreateOrderPayload } from '@/lib/db';
+import { createOrder, getOrders, updateOrderStatus, CreateOrderPayload } from '@/lib/db';
+import { OrderStatus } from '@/types/database';
+
+export async function GET() {
+  try {
+    const orders = await getOrders();
+    return NextResponse.json({ orders });
+  } catch (err: unknown) {
+    console.error('Fetch orders error:', err);
+    return NextResponse.json({ orders: [] }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { orderId, status, estimated_time } = body;
+
+    if (!orderId || !status) {
+      return NextResponse.json({ error: 'orderId and status are required' }, { status: 400 });
+    }
+
+    const updated = await updateOrderStatus(orderId, status as OrderStatus, estimated_time);
+    return NextResponse.json({ success: true, order: updated });
+  } catch (err: unknown) {
+    console.error('Update order status error:', err);
+    return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

@@ -116,6 +116,17 @@ export default function CheckoutPage() {
         throw new Error(data.error || 'Failed to place order. Please try again.');
       }
 
+      // Save order to client-side localStorage fallback as well
+      if (typeof window !== 'undefined' && data.order) {
+        try {
+          const stored = localStorage.getItem('chaat_orders');
+          const currentOrders = stored ? JSON.parse(stored) : [];
+          localStorage.setItem('chaat_orders', JSON.stringify([data.order, ...currentOrders.filter((o: { id: string }) => o.id !== data.order.id)]));
+        } catch {
+          // ignore
+        }
+      }
+
       // Clear cart on successful order
       clearCart();
 

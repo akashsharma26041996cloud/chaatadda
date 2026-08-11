@@ -32,10 +32,35 @@ export default function AdminOrdersPage() {
   const loadOrders = async () => {
     setIsLoading(true);
     try {
-      const data = await getOrders();
-      setOrders(data);
+      // 1. Load local / Supabase orders
+      let current = await getOrders();
+
+      // 2. Fetch from API endpoint to sync any orders submitted to server
+      try {
+        const res = await fetch('/api/orders');
+        if (res.ok) {
+          const apiData = await res.json();
+          if (apiData.orders && Array.isArray(apiData.orders)) {
+            const combinedMap = new Map<string, Order>();
+            // Add existing
+            current.forEach((o) => combinedMap.set(o.id, o));
+            // Add/overwrite with fresh API orders
+            apiData.orders.forEach((o: Order) => combinedMap.set(o.id, o));
+            current = Array.from(combinedMap.values()).sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('chaat_orders', JSON.stringify(current));
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('API orders sync fallback:', err);
+      }
+
+      setOrders(current);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load orders:', e);
     } finally {
       setIsLoading(false);
     }
@@ -43,12 +68,23 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     loadOrders();
+    const interval = setInterval(loadOrders, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
     setUpdatingId(orderId);
     try {
       const updated = await updateOrderStatus(orderId, status);
+      try {
+        await fetch('/api/orders', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, status })
+        });
+      } catch {
+        // ignore
+      }
       if (updated) {
         setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
         if (selectedOrder?.id === orderId) {

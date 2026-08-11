@@ -27,7 +27,55 @@ export default function LiveOrdersTrackerPage() {
 
   const loadOrders = async () => {
     try {
-      const data = await getPublicLiveOrders();
+      let data = await getPublicLiveOrders();
+
+      // Also query /api/orders to ensure cross-device sync
+      try {
+        const res = await fetch('/api/orders');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.orders && Array.isArray(json.orders)) {
+            const apiPublic = json.orders.map((o: {
+              id: string;
+              order_number: number;
+              customer_name: string;
+              status: OrderStatus;
+              estimated_time?: string;
+              created_at: string;
+              order_items?: { product_name: string; quantity: number }[];
+            }) => {
+              const nameParts = (o.customer_name || 'Guest').trim().split(' ');
+              const maskedName = nameParts.length > 1
+                ? `${nameParts[0]} ${nameParts[1][0]}.`
+                : nameParts[0];
+              const itemsList = o.order_items || [];
+              const totalItemsCount = itemsList.reduce((acc, it) => acc + (it.quantity || 1), 0);
+              const itemsSummary = itemsList.length > 0
+                ? itemsList.map((it) => `${it.quantity}x ${it.product_name}`).join(', ')
+                : 'Delicious chaat dishes';
+              return {
+                id: o.id,
+                order_number: o.order_number || 1001,
+                customer_display: maskedName,
+                status: o.status,
+                estimated_time: o.estimated_time || '25-35 mins',
+                created_at: o.created_at,
+                items_summary: itemsSummary,
+                items_count: totalItemsCount
+              };
+            });
+            const map = new Map<string, PublicOrder>();
+            data.forEach((item) => map.set(item.id, item));
+            apiPublic.forEach((item: PublicOrder) => map.set(item.id, item));
+            data = Array.from(map.values()).sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+          }
+        }
+      } catch {
+        // ignore
+      }
+
       setOrders(data);
     } catch (e) {
       console.error(e);
