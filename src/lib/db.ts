@@ -300,6 +300,17 @@ export interface CreateOrderPayload {
   items: { product_id: string; quantity: number }[];
 }
 
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   if (!payload.items || payload.items.length === 0) {
     throw new Error('Cart must contain at least one item');
@@ -314,7 +325,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   const settings = await getSettings();
 
   let subtotal = 0;
-  const orderId = `ord-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  const orderId = generateUUID();
   const orderItems: OrderItem[] = [];
 
   for (const itemPayload of payload.items) {
@@ -332,7 +343,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
     subtotal += lineTotal;
 
     orderItems.push({
-      id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      id: generateUUID(),
       order_id: orderId,
       product_id: product.id,
       product_name: product.name,
