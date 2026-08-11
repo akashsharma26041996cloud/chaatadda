@@ -73,6 +73,8 @@ export interface BusinessSettings {
   admin_notification_email?: string;
   callmebot_phone?: string;
   callmebot_api_key?: string;
+  telegram_bot_token?: string;
+  telegram_chat_id?: string;
 }
 
 export interface CartItem {

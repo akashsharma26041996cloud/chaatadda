@@ -76,6 +76,48 @@ export async function sendNewOrderNotification(
         });
     }
 
+    // Telegram Bot Automated Notification (100% Free, Instant & Reliable)
+    const tgToken = settings?.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN || process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN;
+    const tgChatId = settings?.telegram_chat_id || process.env.TELEGRAM_CHAT_ID || process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID;
+
+    if (tgToken && tgChatId) {
+      const tgText = [
+        `🥟 <b>NEW ORDER #${order.order_number || order.id.slice(0, 6)}</b>`,
+        `━━━━━━━━━━━━━━━━━━━━`,
+        `👤 <b>Customer:</b> ${order.customer_name}`,
+        `📞 <b>Phone:</b> <code>+91 ${order.customer_phone}</code>`,
+        `📍 <b>Address:</b> ${order.delivery_address}`,
+        order.delivery_instructions ? `📝 <b>Note:</b> <i>${order.delivery_instructions}</i>` : '',
+        `━━━━━━━━━━━━━━━━━━━━`,
+        `📦 <b>ITEMS:</b>`,
+        items.map((i) => `• <b>${i.quantity}x</b> ${i.product_name} (₹${i.total_price})`).join('\n'),
+        `━━━━━━━━━━━━━━━━━━━━`,
+        `💵 <b>TOTAL:</b> ₹${order.total} (<b>${order.payment_method}</b>)`,
+        `⏱️ <b>Time:</b> ${timeStr}`
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      const tgUrl = `https://api.telegram.org/bot${tgToken.trim()}/sendMessage`;
+
+      fetch(tgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: tgChatId.trim(),
+          text: tgText,
+          parse_mode: 'HTML'
+        })
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          console.log('🤖 Telegram Notification Response:', data);
+        })
+        .catch((err) => {
+          console.error('🤖 Telegram Notification Error:', err);
+        });
+    }
+
     // Optional: Send to external free webhook if set in environment
     const webhookUrl = process.env.NEXT_PUBLIC_NEW_ORDER_WEBHOOK_URL;
     if (webhookUrl) {
@@ -90,6 +132,46 @@ export async function sendNewOrderNotification(
   } catch (error) {
     console.error('Failed to send notification:', error);
     return { success: false, message: 'Notification error' };
+  }
+}
+
+/**
+ * Sends a test message via Telegram Bot to verify token and chat id
+ */
+export async function sendTelegramTestNotification(
+  token: string,
+  chatId: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const testText = [
+      `🚀 <b>Chaat Adda - Telegram Bot Test</b>`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `✅ <b>Success!</b> Your Telegram notification integration is working!`,
+      `🔔 You will now receive instant live alerts with full order details for every new customer order here! 🥟✨`
+    ].join('\n');
+
+    const res = await fetch(`https://api.telegram.org/bot${token.trim()}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId.trim(),
+        text: testText,
+        parse_mode: 'HTML'
+      })
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      return { success: true, message: 'Test message sent to Telegram successfully!' };
+    } else {
+      return {
+        success: false,
+        message: data.description || 'Telegram API returned an error. Check Token and Chat ID.'
+      };
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Network error';
+    return { success: false, message: `Failed to connect to Telegram: ${msg}` };
   }
 }
 
